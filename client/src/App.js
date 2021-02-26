@@ -10,9 +10,9 @@ const GET_BOOKS = gql`
 query {
   books {
     id
-  	title
+    title
     author
-	}
+  }
 }
 `
 
@@ -45,8 +45,7 @@ const Books = (props) => {
       <ul>
         {data.books.map(book =>
           <li key={book.title}>
-            {book.title} - {book.author}
-            <button type="button" onClick={() => props.handleClickEdit(book)}>edit</button>
+            {book.title} - {book.author} - <button type="button" onClick={() => props.handleClickEdit(book)}>edit</button>
           </li>
         )}
       </ul>
