@@ -16,9 +16,9 @@ query {
 }
 `
 
-const ADD_BOOK = gql`
-mutation CreateBook($title: String!, $author: String!) {
-  addBook(title: $title, author: $author) {
+const UPDATE_BOOK = gql`
+mutation UpdateBook($title: String!, $author: String!) {
+  updateBook(title: $title, author: $author) {
     id
     title
     author
@@ -26,7 +26,7 @@ mutation CreateBook($title: String!, $author: String!) {
 }
 `
 
-const Books = () => {
+const Books = (props) => {
   const { loading, error, data } = useQuery(GET_BOOKS)
 
   if (error) {
@@ -40,59 +40,74 @@ const Books = () => {
   console.log('books loaded', data.books)
 
   return (
-    <ul>
-      {data.books.map(book =>
-        <li key={book.title}>
-          {book.title} - {book.author}
-        </li>
-      )}
-    </ul>
+    <>
+      <h2>Books</h2>
+      <ul>
+        {data.books.map(book =>
+          <li key={book.title}>
+            {book.title} - {book.author}
+            <button type="button" onClick={() => props.handleClickEdit(book)}>edit</button>
+          </li>
+        )}
+      </ul>
+    </>
   )
 }
 
-const NEW_BOOK_PLACEHOLDER = { title: '', author: '' }
-
-const BookForm = () => {
-  const [newBook, setNewBook] = useState(NEW_BOOK_PLACEHOLDER)
-  const [addBook, { data }] = useMutation(ADD_BOOK);
+const BookForm = (props) => {
+  const [book, setBook] = useState(() => props.book)
+  const [addBook, { data }] = useMutation(UPDATE_BOOK);
 
   const handleSubmit = (ev) => {
     ev.preventDefault();
-    console.log('submit', newBook)
+    console.log('submit', book)
     addBook({
-      variables: newBook
+      variables: book
     })
     console.log('succeeded', data)
-    setNewBook(NEW_BOOK_PLACEHOLDER)
+    setBook({ title: '', author: '' })
   }
 
+  console.log(book)
+
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        name="title"
-        onChange={(ev) => setNewBook((prev) => ({ ...prev, title: ev.target.value }))}
-        defaultValue={newBook.title}
-        required
-      />
-      <input
-        type="text"
-        name="author"
-        onChange={(ev) => setNewBook((prev) => ({ ...prev, author: ev.target.value }))}
-        defaultValue={newBook.author}
-        required
-      />
-      <button type="submit">submit</button>
-    </form>
+    <>
+      <h2>Edit</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="title"
+          onChange={(ev) => setBook((prev) => ({ ...prev, title: ev.target.value }))}
+          defaultValue={book.title}
+          required
+        />
+        <input
+          type="text"
+          name="author"
+          onChange={(ev) => setBook((prev) => ({ ...prev, author: ev.target.value }))}
+          defaultValue={book.author}
+          required
+        />
+        <button type="submit">submit</button>
+      </form>
+    </>
   )
 }
 
 const App = () => {
+  const [editTargetBook, setEditTargetBook] = useState()
+
+  const handleClickEdit = (book) => {
+    setEditTargetBook(book)
+  }
+
+  console.log(editTargetBook)
+
   return (
     <div  className="App">
       <ApolloProvider client={client}>
-        <Books />
-        <BookForm />
+        <Books handleClickEdit={handleClickEdit} />
+        {editTargetBook && <BookForm book={editTargetBook} />}
       </ApolloProvider>
     </div>
   );

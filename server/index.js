@@ -21,7 +21,6 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    addBook(title: String!, author: String!): Book
     updateBook(title: String!, author: String!): Book
   }
 `;
@@ -46,16 +45,11 @@ const resolvers = {
     books: () => books,
   },
   Mutation: {
-    addBook: (_, { title, author }) => {
-      const maxId = Math.max(...books.map(book => book.id))
-      const newBook = { title, author, id: maxId + 1 }
-      books.push(newBook)
-      return newBook
-    },
     updateBook: (_, { title, author }) => {
-      const targetBook = books.find(book => book.title === args.title)
-      const updatedBook = { ...targetBook, title, author }
-      return updatedBook
+      const targetBook = books.find(book => book.title === title)
+      targetBook.title = title
+      targetBook.author = author
+      return targetBook
     }
   }
 };
