@@ -8,7 +8,8 @@ const typeDefs = gql`
 
   # This "Book" type defines the queryable fields for every book in our data source.
   type Book {
-    title: ID!
+    id: ID!,
+    title: String!
     author: String!
   }
 
@@ -18,14 +19,21 @@ const typeDefs = gql`
   type Query {
     books: [Book]
   }
+
+  type Mutation {
+    addBook(title: String!, author: String!): Book
+    updateBook(title: String!, author: String!): Book
+  }
 `;
 
 const books = [
   {
+    id: 1,
     title: 'The Awakening',
     author: 'Kate Chopin',
   },
   {
+    id: 2,
     title: 'City of Glass',
     author: 'Paul Auster',
   },
@@ -37,6 +45,19 @@ const resolvers = {
   Query: {
     books: () => books,
   },
+  Mutation: {
+    addBook: (_, { title, author }) => {
+      const maxId = Math.max(...books.map(book => book.id))
+      const newBook = { title, author, id: maxId + 1 }
+      books.push(newBook)
+      return newBook
+    },
+    updateBook: (_, { title, author }) => {
+      const targetBook = books.find(book => book.title === args.title)
+      const updatedBook = { ...targetBook, title, author }
+      return updatedBook
+    }
+  }
 };
 
 // The ApolloServer constructor requires two parameters: your schema

@@ -1,4 +1,4 @@
-import { ApolloClient, ApolloProvider, gql, InMemoryCache, useQuery } from '@apollo/client';
+import { ApolloClient, ApolloProvider, gql, InMemoryCache, useMutation, useQuery } from '@apollo/client';
 import React, { useState } from 'react';
 
 const client = new ApolloClient({
@@ -7,11 +7,22 @@ const client = new ApolloClient({
 });
 
 const GET_BOOKS = gql`
-{
+query {
   books {
+    id
   	title
     author
 	}
+}
+`
+
+const ADD_BOOK = gql`
+mutation CreateBook($title: String!, $author: String!) {
+  addBook(title: $title, author: $author) {
+    id
+    title
+    author
+  }
 }
 `
 
@@ -39,11 +50,20 @@ const Books = () => {
   )
 }
 
+const NEW_BOOK_PLACEHOLDER = { title: '', author: '' }
+
 const BookForm = () => {
-  const [newBook, setNewBook] = useState({ title: '', author: '' })
+  const [newBook, setNewBook] = useState(NEW_BOOK_PLACEHOLDER)
+  const [addBook, { data }] = useMutation(ADD_BOOK);
 
   const handleSubmit = (ev) => {
     ev.preventDefault();
+    console.log('submit', newBook)
+    addBook({
+      variables: newBook
+    })
+    console.log('succeeded', data)
+    setNewBook(NEW_BOOK_PLACEHOLDER)
   }
 
   return (
@@ -62,6 +82,7 @@ const BookForm = () => {
         defaultValue={newBook.author}
         required
       />
+      <button type="submit">submit</button>
     </form>
   )
 }
