@@ -1,5 +1,5 @@
 import { ApolloClient, ApolloProvider, gql, InMemoryCache, useQuery } from '@apollo/client';
-import React from 'react';
+import React, { useState } from 'react';
 
 const client = new ApolloClient({
   uri: 'http://lvh.me:4000',
@@ -39,11 +39,39 @@ const Books = () => {
   )
 }
 
+const BookForm = () => {
+  const [newBook, setNewBook] = useState({ title: '', author: '' })
+
+  const handleSubmit = (ev) => {
+    ev.preventDefault();
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        name="title"
+        onChange={(ev) => setNewBook((prev) => ({ ...prev, title: ev.target.value }))}
+        defaultValue={newBook.title}
+        required
+      />
+      <input
+        type="text"
+        name="author"
+        onChange={(ev) => setNewBook((prev) => ({ ...prev, author: ev.target.value }))}
+        defaultValue={newBook.author}
+        required
+      />
+    </form>
+  )
+}
+
 const App = () => {
   return (
     <div  className="App">
       <ApolloProvider client={client}>
         <Books />
+        <BookForm />
       </ApolloProvider>
     </div>
   );
